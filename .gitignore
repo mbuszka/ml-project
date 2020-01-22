@@ -132,3 +132,5 @@ dmypy.json
 # Custom
 data/
 .idea
+.DS_Store
+output/*

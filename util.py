@@ -1,17 +1,10 @@
-
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-from scipy.sparse import coo_matrix, eye
-from scipy.sparse.linalg import svds
-from sklearn.metrics import mean_squared_error
-
-from sklearn import datasets
-from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
-from sklearn import tree
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans, Birch, DBSCAN
+import os
+import subprocess
 from itertools import chain
+from pathlib import Path
+
+import pandas as pd
+import sklearn
 
 
 def read_files(size="small"):
@@ -30,3 +23,13 @@ def read_files(size="small"):
         # movies mean raiting
         movies = movies.merge(ratings.groupby('movieId')['rating'].agg([pd.np.mean]), how='left', on='movieId')
         return ratings, movies, genres
+
+
+def export_tree(tree, feature_names, filename):
+    Path("output/").mkdir(parents=True, exist_ok=True)
+    with open("output/tmp1.dot", "w") as f:
+        sklearn.tree.export_graphviz(tree, out_file=f, feature_names=feature_names)
+
+    cmd = ['dot', '-Tpdf', 'output/tmp1.dot', '-o', "output/" + filename]
+    subprocess.call(cmd)
+    os.remove("output/tmp1.dot")
