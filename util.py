@@ -45,7 +45,7 @@ def export_tree(tree, feature_names, export=False, show=False, filename="tree.pd
 
 
 def test_classifier(classifier, clf_data, genres, export=False, show_tree=False, verbose=True, plot=True, axs=None,
-                    clf_name=None, **kwargs):
+                    clf_name=None, cv_n_jobs=4, **kwargs):
     plot_data = {}
     for i, genre in enumerate(tqdm(genres)):
         clf = classifier(**kwargs)
@@ -53,7 +53,7 @@ def test_classifier(classifier, clf_data, genres, export=False, show_tree=False,
         X = clf_data.drop(genre, axis=1)
         y = clf_data[genre]
         clf = clf.fit(X, y)
-        score_val = np.sum(cross_val_score(clf, X, y, cv=10, verbose=True)) / 10
+        score_val = np.sum(cross_val_score(clf, X, y, cv=10, verbose=verbose, n_jobs=cv_n_jobs)) / 10
         if verbose:
             print(f"""{genre}:
             Quantity: {len(y[clf_data[genre] == True])} / {len(y[clf_data[genre] != True])}
