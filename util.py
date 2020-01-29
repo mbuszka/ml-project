@@ -15,20 +15,28 @@ import matplotlib.pyplot as plt
 
 def read_files(size="small"):
     if size == "small":
-        ratings = pd.read_csv("data/ml-latest-small/ratings.csv", sep=",", header=0, engine='python')
-        movies = pd.read_csv("data/ml-latest-small/movies.csv", sep=",", header=0, engine='python')
+        path = "data/ml-latest-small"
+    elif size == 'big':
+        path = "data/ml-latest"
+    else:
+        raise Exception()
+    
+    ratings = pd.read_csv(f"{path}/ratings.csv", sep=",", header=0,
+        dtype={ 'userId': 'int32', 'movieId': 'int32', 'rating': 'float16' },
+        usecols=['movieId', 'userId', 'rating'])
+    movies = pd.read_csv(f"{path}/movies.csv", sep=",", header=0)
 
-        # Getting all the available movie genres
-        genres = set(chain(*[x.split("|") for x in movies["genres"]]))
-        genres.remove("(no genres listed)")
+    # Getting all the available movie genres
+    genres = set(chain(*[x.split("|") for x in movies["genres"]]))
+    genres.remove("(no genres listed)")
 
-        # "genres vector"
-        for v in genres:
-            movies[v] = movies['genres'].str.contains(v)
+    # "genres vector"
+    for v in genres:
+        movies[v] = movies['genres'].str.contains(v)
 
-        # movies mean raiting
-        movies = movies.merge(ratings.groupby('movieId')['rating'].agg([pd.np.mean]), how='left', on='movieId')
-        return ratings, movies, genres
+    # movies mean raiting
+    movies = movies.merge(ratings.groupby('movieId')['rating'].agg([pd.np.mean]), how='left', on='movieId')
+    return ratings, movies, genres
 
 
 def export_tree(tree, feature_names, export=False, show=False, filename="tree.pdf"):
