@@ -22,7 +22,7 @@ def read_files(size="small"):
         raise Exception()
     
     ratings = pd.read_csv(f"{path}/ratings.csv", sep=",", header=0,
-        dtype={ 'userId': 'int32', 'movieId': 'int32', 'rating': 'float16' },
+        # dtype={ 'userId': 'int32', 'movieId': 'int32', 'rating': 'float16' },
         usecols=['movieId', 'userId', 'rating'])
     movies = pd.read_csv(f"{path}/movies.csv", sep=",", header=0)
 
