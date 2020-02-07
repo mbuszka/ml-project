@@ -151,7 +151,6 @@ def test_knn(ratings, size, min_ratings):
 if __name__ == "__main__":
     parser = ArgumentParser(description='Run tests')
     parser.add_argument('--size', dest='size', default='small')
-    parser.add_argument('--min_ratings', dest='min_ratings', type=int, default=1)
     args = parser.parse_args()
     ratings = read_files(size=args.size)[0]
 
