@@ -38,34 +38,6 @@ def load_data(ratings, test_size, normalize, min_ratings):
     return train, test
 
 
-def test_svd(ratings, size, min_ratings):
-    err_svd = []
-    cases = [(it, norm) for it in range(3) for norm in ['userId', 'movieId']]
-    ks = [20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200]
-
-    for it, normalize in tqdm(cases, desc='SVD', position=0):
-        train, test = load_data(ratings, test_size=10000, normalize=normalize, min_ratings=min_ratings)
-        utility = coo_matrix(
-            (train['rating'], (train['userId'], train['movieId']))
-            ).tocsr()
-        for k in tqdm(ks, desc='Inner', position=1, leave=False):
-            u, s, vt = sa.svds(utility, k=k)
-            u = u @ np.diag(s)
-            rmse = 0
-            mae = 0
-            num_samples = len(test.index)
-            for r in test.itertuples():
-                p = r.normalization_delta + u[r.userId, :] @ vt[:, r.movieId]
-                rmse += np.float64((p - r.rating) ** 2)
-                mae += np.float64(abs(p - r.rating))
-            rmse /= num_samples
-            rmse = np.sqrt(s)
-            mae /= num_samples
-            err_svd.append({ 'k': k, 'rmse': rmse, 'mae': mae, 'it': it, 'normalize': normalize })
-    f = f"svd-{size}-{min_ratings}.csv"
-    pd.DataFrame(err_svd).to_csv(f)
-
-
 def calculate_item_item_similarity(ratings):
     """
     Calculate matrix of cosine distances between movies
@@ -86,12 +58,12 @@ def calculate_item_item_similarity(ratings):
     return ii_similarity
 
 
-def test_cf(ratings, size, min_ratings):
+def test_avg(ratings, size, min_ratings):
     err_ii = []
 
     cases = [(it, norm) for it in range(3) for norm in ['none', 'movieId', 'userId']]
 
-    for _, normalize in tqdm(cases, desc='CF', position=0):
+    for _, normalize in tqdm(cases, desc='AVG', position=0):
         train, test = load_data(ratings, test_size=10000, normalize=normalize, min_ratings=min_ratings)
         ii_similarity = calculate_item_item_similarity(train)
         user_ratings = train.groupby('userId').indices
@@ -120,12 +92,12 @@ def test_cf(ratings, size, min_ratings):
     pd.DataFrame(err_ii).to_csv(f)
 
 
-def test_knn(ratings, size, min_ratings):
+def test_kms(ratings, size, min_ratings):
     err_knn = []
     cases = [(it, norm) for it in range(3) for norm in ['none', 'movieId', 'userId']]
     ks = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
 
-    for it, normalize in tqdm(cases, desc='KNN', position=0):
+    for it, normalize in tqdm(cases, desc='KMS', position=0):
         train, test = load_data(ratings, test_size=10000, normalize=normalize, min_ratings=min_ratings)
         ii_similarity = calculate_item_item_similarity(train)
         user_ratings = train.groupby('userId').indices
@@ -159,11 +131,11 @@ if __name__ == "__main__":
 
     # test_svd(ratings, args.size, args.min_ratings)
     # test_cf(ratings, args.size, args.min_ratings)
-    test_knn(ratings, args.size, 1)
-    test_knn(ratings, args.size, 2)
-    test_knn(ratings, args.size, 5)
-    test_knn(ratings, args.size, 20)
-    test_cf(ratings, args.size, 1)
-    test_cf(ratings, args.size, 2)
-    test_cf(ratings, args.size, 5)
-    test_cf(ratings, args.size, 20)
+    test_kms(ratings, args.size, 1)
+    test_kms(ratings, args.size, 2)
+    test_kms(ratings, args.size, 5)
+    test_kms(ratings, args.size, 20)
+    test_avg(ratings, args.size, 1)
+    test_avg(ratings, args.size, 2)
+    test_avg(ratings, args.size, 5)
+    test_avg(ratings, args.size, 20)

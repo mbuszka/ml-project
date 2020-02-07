@@ -41,7 +41,10 @@ def load_data(ratings, test_size, normalize, min_ratings):
 def test_svd(ratings, size, min_ratings):
     err_svd = []
     cases = [(it, norm) for it in range(3) for norm in ['userId', 'movieId']]
-    ks = [20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200]
+    if size == 'big':
+        ks = [20, 30, 40, 50, 60, 70, 80, 90, 100, 150, 200]
+    else:
+        ks = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 40]
 
     for it, normalize in tqdm(cases, desc='SVD', position=0):
         train, test = load_data(ratings, test_size=10000, normalize=normalize, min_ratings=min_ratings)
