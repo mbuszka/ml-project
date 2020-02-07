@@ -114,6 +114,7 @@ def test_cf(ratings, size, min_ratings):
         rmse = np.sqrt(rmse)
         mae /= num_samples
         err_ii.append({ 'normalize': normalize, 'rmse': rmse, 'mae': mae, 'no_match': no_match })
+        del(ii_similarity)
     
     f = f"cf-{size}-{min_ratings}.csv"
     pd.DataFrame(err_ii).to_csv(f)
